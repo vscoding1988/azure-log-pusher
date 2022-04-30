@@ -1,0 +1,38 @@
+{
+  "properties": [
+    {
+      "name": "app.log.timestampPattern",
+      "type": "java.lang.String",
+      "description": "The log date has to be changed to YYYY-MM-DDThh:mm:ssZ, please provide basic."
+    },
+    {
+      "name": "app.log.timestampFieldName",
+      "type": "java.lang.String",
+      "description": "Name of the Timestamp field."
+    },
+    {
+      "name": "app.log.fields",
+      "type": "java.lang.String",
+      "description": "Names of named groups, which should be sent to azure."
+    },
+    {
+      "name": "app.log.pattern",
+      "type": "java.lang.String",
+      "description": "Pattern for the logfile."
+    },
+    {
+      "name": "app.log.path",
+      "type": "java.lang.String",
+      "description": "Path to the logfile."
+    },
+    {
+      "name": "app.azure.workspaceId",
+      "type": "java.lang.String",
+      "description": "Log Analytics Workspace ID, can be found in the Azure \"Overview\" tab."
+    },
+    {
+      "name": "app.azure.connectionKey",
+      "type": "java.lang.String",
+      "description": "Log Analytics secondary or primary key, can be found in Azure \"Agent Management\"."
+    }
+  ] }

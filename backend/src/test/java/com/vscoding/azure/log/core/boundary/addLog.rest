@@ -1,0 +1,21 @@
+### Add log to send
+POST http://localhost:8080/rest/add-log
+Content-Type: application/json
+
+{
+  "path": "{{log_path}}",
+  "pattern": "(?<HostIp>[0-9.-]+) - - \\[(?<Timestamp>.+)] \"(?<Method>[A-Z]+) (?<Path>.+) HTTP/1.1\" (?<StatusCode>\\d+) (?<Duration>\\d+) \"(?<Domain>.+)\" \"(?<Agent>.+)\" \"(?<ClientIp>[0-9-.]+)\"",
+  "fields": [
+    "HostIp",
+    "Timestamp",
+    "Method",
+    "Path",
+    "StatusCode",
+    "Duration",
+    "Domain",
+    "Agent",
+    "ClientIp"
+  ],
+  "timestampFieldName": "Timestamp",
+  "timestampPattern": "dd/MMM/yyyy:HH:mm:ss ZZZZ"
+}
