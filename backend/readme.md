@@ -6,17 +6,6 @@ found [here](https://docs.microsoft.com/en-us/azure/azure-monitor/logs/data-coll
 application to run we need to provide the following properties.
 
 ```properties
-# Log properties
-# Path to the logfile
-app.log.path=
-# Pattern for the logfile
-app.log.pattern=
-# Names of named groups, which should be sent to azure
-app.log.fields=
-# Name of the Timestamp field
-app.log.timestampFieldName=
-# pattern for the date in your log, only used when timestampFieldName is set
-app.log.timestampPattern=
 # Azure properties you can find both values below "Agent Management"
 # Workspace ID
 app.azure.workspaceId=
@@ -48,24 +37,38 @@ We split the first line and create a regex for it:
 | Mozilla/5.0 [...]           | user agent       | `"(?<Agent>.+)"`          |
 | 127.0.1.0                   | status Code      | `"(?<ClientIp>[0-9-.]+)"` |
 
-The config for this log would be:
+Based on that we can create a request
 
-```properties
-app.log.path=/my/log/path.log
-app.log.pattern=(?<HostIp>[0-9.-]+) - - \[(?<Timestamp>.+)] "(?<Method>[A-Z]+) (?<Path>.+) HTTP/1.1" (?<StatusCode>\d+) (?<Duration>\d+) "(?<Domain>.+)" "(?<Agent>.+)" "(?<ClientIp>[0-9-.]+)"
-app.log.fields=HostIp,Timestamp,Method,Path,StatusCode,Duration,Domain,Agent,ClientIp
-app.log.timestampFieldName=Timestamp
+```json
+{
+  "path": "/my/log/path.log",
+  "pattern": "(?<HostIp>[0-9.-]+) - - \\[(?<Timestamp>.+)] \"(?<Method>[A-Z]+) (?<Path>.+) HTTP/1.1\" (?<StatusCode>\\d+) (?<Duration>\\d+) \"(?<Domain>.+)\" \"(?<Agent>.+)\" \"(?<ClientIp>[0-9-.]+)\"",
+  "fields": [
+    "HostIp",
+    "Timestamp",
+    "Method",
+    "Path",
+    "StatusCode",
+    "Duration",
+    "Domain",
+    "Agent",
+    "ClientIp"
+  ],
+  "timestampFieldName": "Timestamp",
+  "timestampPattern": "dd/MMM/yyyy:HH:mm:ss ZZZZ"
+}
 ```
 
-After executing it we can navigate to "Log Analytics workspace" and select in the sidebar _Custom
+Or you can use the provided [addLog.rest](src/test/java/com/vscoding/azure/log/core/boundary/addLog.rest).
+After executing it we can navigate to "Log Analytics Workspace" and select in the sidebar _Custom
 Logs_ (inside Settings Tab). You will see your log immediately displayed there
 
-![img.png](../../assets/send_logs_to_azure/img.png)
+![custom_logs.png](../docs/assets/custom_logs.png)
 
 When switching to the _Logs_ view you will see your log as table below _Custom Logs_ (it may take
 some time, until it is displayed ~10-15 Minutes).
 
-![img_1.png](../../assets/send_logs_to_azure/img_1.png)
+![logs.png](../docs/assets/logs.png)
 
 Now you can query your logs.
 
@@ -81,11 +84,3 @@ see [here](https://docs.microsoft.com/en-us/azure/azure-monitor/logs/data-collec
 I was not able to make it work, even when the date was in correctly formatted, it still kept getting
 the wrong `TimeGenerated` value. So I will comment out the header (if I don't azure just drops
 the `Timestamp`) field.
-
-## TODO
-
-- add folder support
-- persist already parsed logs, to make tailing possible (maybe generate a hash for 
-- add type option, or automatic recognition for numbers
-
-
