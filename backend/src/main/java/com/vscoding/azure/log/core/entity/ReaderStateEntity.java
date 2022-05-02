@@ -1,11 +1,12 @@
 package com.vscoding.azure.log.core.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-
+import com.vscoding.azure.log.core.control.reader.ReaderConfig;
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.Date;
+import javax.persistence.Lob;
+import lombok.Getter;
+import lombok.Setter;
 
 
 /**
@@ -15,6 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class ReaderStateEntity {
+
   /**
    * Each reader will generate own id, and keep it as local variable
    */
@@ -37,8 +39,14 @@ public class ReaderStateEntity {
   private Date lastCheck;
 
   /**
-   * Path to the log (or url, ect) used for display only
+   * Config in json format
    */
-  private String path;
+  @Lob
+  private String config;
+
+  /**
+   * Class for deserialization of the config
+   */
+  private Class<? extends ReaderConfig> configClass;
 
 }
