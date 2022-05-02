@@ -1,5 +1,7 @@
-package com.vscoding.azure.log.core.boundary;
+package com.vscoding.azure.log.core.control.reader.file;
 
+import com.vscoding.azure.log.core.control.parser.SimpleDateConfig;
+import com.vscoding.azure.log.core.control.parser.SimpleLogConfig;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -7,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Data
-public class LogSendRequest {
+public class TailingFileConfig implements SimpleLogConfig, SimpleDateConfig {
   @NotBlank
   private String path;
   @NotBlank

@@ -1,4 +1,4 @@
-package com.vscoding.azure.log.core.control;
+package com.vscoding.azure.log.core.control.client;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
@@ -55,11 +55,14 @@ public class AzureClient {
   /**
    * Will send logs to azure
    *
-   * @param logName name of the log, will be used to generate "Custom Log" in Log Analytics Workspace
+   * @param logPath log path
    * @param logs    stringified logs to send
    * @return sending successful
    */
-  public boolean sendLogs(String logName, String logs) {
+  public boolean sendLogs(String logPath, String logs) {
+    log.info("Start sending logs for '{}'", logPath);
+    var logName = getLogName(logPath);
+
     try (var httpClient = HttpClients.createDefault()) {
       var httpPost = getPost(logName, logs);
       var response = httpClient.execute(httpPost);
@@ -138,5 +141,28 @@ public class AzureClient {
 
     return new String(
             Base64.getEncoder().encode(sha256HMAC.doFinal(input.getBytes(StandardCharsets.UTF_8))));
+  }
+
+
+  /**
+   * Get log name from log file path
+   *
+   * @param logPath path to the log
+   * @return processed log name
+   */
+  private String getLogName(String logPath) {
+    var segments = logPath.split("/");
+
+    var fileName = segments[segments.length - 1];
+
+    // only [a-zA-Z0-9_] are allowed
+    fileName = fileName.replaceAll("[^a-zA-Z0-9_]", "_");
+
+    // Max length is capped to 100
+    if (fileName.length() >= 100) {
+      fileName = fileName.substring(0, 99);
+    }
+
+    return fileName;
   }
 }

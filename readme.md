@@ -6,10 +6,12 @@ After starting the backend (see [here](backend/readme.md)) you can use the rest 
 local logs to the Log Analytics Workspace. 
 
 ## Features
-- process and send a single local log-file to azure
+- process and send a single local log-file to azure 
+  - each line is processed as one log entry (in other words, stacktrace is not supported)
 
 ## TODO
 - Allow tailing
 - support folders
 - add basic frontend
 - make application standalone
+- add support for multi line logs (like exceptions) 
