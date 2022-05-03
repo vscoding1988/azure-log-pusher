@@ -5,6 +5,7 @@ import com.vscoding.azure.log.core.entity.LogRepository;
 import com.vscoding.azure.log.core.entity.ReaderStateEntity;
 import com.vscoding.azure.log.core.entity.ReaderStateRepository;
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -37,32 +38,38 @@ public class TailingFileReader {
    */
   @Scheduled(cron = "0 * * * * *")
   protected void startNewReader() {
-    stateRepository.findAllByLastCheckIsNullAndConfigClass(TailingFileConfig.class).forEach(this::run);
+    stateRepository.findAllByLastCheckIsNullAndConfigClass(TailingFileConfig.class)
+            .forEach(this::run);
 
     // To reduce DB write access, write only once a minute
     stateRepository.saveAll(currentRunning);
   }
 
   /**
-   * Start new {@link TailingListener} for created state
+   * Read first the whole file and attach after that the tailing for coming changes.
    *
-   * @param state {@link ReaderStateEntity} not started reader
+   * @param state start reader for given {@link ReaderStateEntity}
    */
   private void run(ReaderStateEntity state) {
+    var config = new Gson().fromJson(state.getConfig(), TailingFileConfig.class);
+    log.info("Start Reader with id = '{}' for path '{}'", state.getId(), config.getPath());
 
-    try {
-      var config = new Gson().fromJson(state.getConfig(), TailingFileConfig.class);
+    var listener = new TailingListener(logRepository, state, config.getPath());
 
-      var listener = new TailingListener(logRepository, state, config.getPath());
-      var tailer = Tailer.create(new File(config.getPath()), listener, tailingDelay);
+    // first read the file as whole
+    try (var br = new RandomAccessFile(new File(config.getPath()), "r")) {
 
-      var thread = new Thread(tailer);
-      thread.setDaemon(true);
-      thread.start();
-
-      currentRunning.add(state);
+      String line;
+      while ((line = br.readLine()) != null) {
+        listener.handle(line);
+      }
+      listener.endOfFileReached();
     } catch (Exception e) {
-      log.error("Failed with exception:", e);
+      log.error("Error parsing file '{}'", config.getPath(), e);
     }
+
+    // attach tailing Tailer.create will create a separate thread und tail log inside
+    Tailer.create(new File(config.getPath()), listener, tailingDelay, true);
+    currentRunning.add(state);
   }
 }

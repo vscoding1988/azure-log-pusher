@@ -46,8 +46,8 @@ public class AzureClient {
   private final String connectionKey;
 
   public AzureClient(
-          @Value("${app.azure.workspaceId:}") String workspaceId,
-          @Value("${app.azure.connectionKey:}") String connectionKey) {
+          @Value("${app.azure.workspaceId}") String workspaceId,
+          @Value("${app.azure.connectionKey}") String connectionKey) {
     this.workspaceId = workspaceId;
     this.connectionKey = connectionKey;
   }
@@ -66,7 +66,14 @@ public class AzureClient {
     try (var httpClient = HttpClients.createDefault()) {
       var httpPost = getPost(logName, logs);
       var response = httpClient.execute(httpPost);
-      return response.getStatusLine().getStatusCode() == 200;
+      var statusCode = response.getStatusLine().getStatusCode();
+
+      if(statusCode != 200){
+        log.warn("Error sending logs to azure, status code: {}",statusCode);
+        return false;
+      }
+
+      return true;
     } catch (Exception e) {
       log.error("Error sending request for '{}' to azure", logName, e);
     }

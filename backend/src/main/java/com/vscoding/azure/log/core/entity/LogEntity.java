@@ -19,6 +19,11 @@ public class LogEntity {
   private long id;
 
   /**
+   * Id of the reader which created the
+   */
+  private String readerId;
+
+  /**
    * Time stamp of creation of the entity, NOT of the log
    */
   private Date timestamp;
