@@ -8,10 +8,16 @@ local logs to the Log Analytics Workspace.
 ## Features
 - process and send a single local log-file to azure 
   - each line is processed as one log entry (in other words, stacktrace is not supported)
+- Reading a file and tail changes to it
 
 ## TODO
-- Allow tailing
-- support folders
+
+### New features
+- support folder
 - add basic frontend
 - make application standalone
+
+### Enchantments
 - add support for multi line logs (like exceptions) 
+- add type recognition
+- make fields obsolet, by parsing the data

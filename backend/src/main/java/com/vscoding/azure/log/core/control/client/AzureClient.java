@@ -1,9 +1,15 @@
 package com.vscoding.azure.log.core.control.client;
 
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -12,17 +18,8 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * Based on implementation provided in
@@ -68,8 +65,8 @@ public class AzureClient {
       var response = httpClient.execute(httpPost);
       var statusCode = response.getStatusLine().getStatusCode();
 
-      if(statusCode != 200){
-        log.warn("Error sending logs to azure, status code: {}",statusCode);
+      if (statusCode != 200) {
+        log.warn("Error sending logs to azure, status code: {}", statusCode);
         return false;
       }
 
