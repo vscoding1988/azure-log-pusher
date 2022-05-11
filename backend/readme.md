@@ -43,17 +43,6 @@ Based on that we can create a request
 {
   "path": "/my/log/path.log",
   "pattern": "(?<HostIp>[0-9.-]+) - - \\[(?<Timestamp>.+)] \"(?<Method>[A-Z]+) (?<Path>.+) HTTP/1.1\" (?<StatusCode>\\d+) (?<Duration>\\d+) \"(?<Domain>.+)\" \"(?<Agent>.+)\" \"(?<ClientIp>[0-9-.]+)\"",
-  "fields": [
-    "HostIp",
-    "Timestamp",
-    "Method",
-    "Path",
-    "StatusCode",
-    "Duration",
-    "Domain",
-    "Agent",
-    "ClientIp"
-  ],
   "timestampFieldName": "Timestamp",
   "timestampPattern": "dd/MMM/yyyy:HH:mm:ss ZZZZ"
 }
@@ -81,6 +70,6 @@ see [here](https://docs.microsoft.com/en-us/azure/azure-monitor/logs/data-collec
 
 > The name of a field in the data that contains the timestamp of the data item. If you specify a field, its contents are used for TimeGenerated. If you don't specify this field, the default for TimeGenerated is the time that the message is ingested. The contents of the message field should follow the ISO 8601 format YYYY-MM-DDThh:mm:ssZ. Note: the Time Generated value cannot be older than 3 days before received time or the row will be dropped.
 
-I was not able to make it work, even when the date was in correctly formatted, it still kept getting
+I was not able to make it work, even when the date was correctly formatted, it still kept getting
 the wrong `TimeGenerated` value. So I will comment out the header (if I don't azure just drops
 the `Timestamp`) field.

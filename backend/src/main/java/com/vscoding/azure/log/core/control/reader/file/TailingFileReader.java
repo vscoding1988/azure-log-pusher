@@ -4,8 +4,9 @@ import com.google.gson.Gson;
 import com.vscoding.azure.log.core.entity.LogRepository;
 import com.vscoding.azure.log.core.entity.ReaderStateEntity;
 import com.vscoding.azure.log.core.entity.ReaderStateRepository;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.RandomAccessFile;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -57,12 +58,10 @@ public class TailingFileReader {
     var listener = new TailingListener(logRepository, state, config.getPath());
 
     // first read the file as whole
-    try (var br = new RandomAccessFile(new File(config.getPath()), "r")) {
+    try (var br = new BufferedReader(new FileReader(config.getPath()))) {
 
-      String line;
-      while ((line = br.readLine()) != null) {
-        listener.handle(line);
-      }
+      br.lines().forEach(listener::handle);
+
       listener.endOfFileReached();
     } catch (Exception e) {
       log.error("Error parsing file '{}'", config.getPath(), e);

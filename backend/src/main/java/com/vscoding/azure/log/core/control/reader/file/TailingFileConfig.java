@@ -15,6 +15,7 @@ public class TailingFileConfig implements SimpleLogConfig, SimpleDateConfig, Rea
   private String path;
   @NotBlank
   private String pattern;
+  private String logName;
   private String timestampFieldName;
   private String timestampPattern;
   @NotEmpty

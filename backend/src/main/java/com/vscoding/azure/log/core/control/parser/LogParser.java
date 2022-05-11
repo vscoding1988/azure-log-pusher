@@ -25,7 +25,7 @@ public class LogParser {
   public Optional<JsonElement> parse(String line, ReaderConfig config) {
 
     if (config instanceof SimpleLogConfig logConfig) {
-      var values = parser.parseLine(line, logConfig);
+      var values = parser.parseLine(line, logConfig.getPattern());
 
       if (values == null) {
         // TODO: better handling for not parseable lines

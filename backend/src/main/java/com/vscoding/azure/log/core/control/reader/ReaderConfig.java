@@ -11,4 +11,6 @@ public interface ReaderConfig {
    * @return log path
    */
   String getPath();
+
+  String getLogName();
 }

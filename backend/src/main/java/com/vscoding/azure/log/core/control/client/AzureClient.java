@@ -2,8 +2,6 @@ package com.vscoding.azure.log.core.control.client;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -14,23 +12,22 @@ import java.util.Locale;
 import java.util.TimeZone;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
- * Based on implementation provided in
- * https://docs.microsoft.com/en-us/azure/azure-monitor/logs/data-collector-api#java-sample
+ * Based on implementation provided in https://docs.microsoft.com/en-us/azure/azure-monitor/logs/data-collector-api#java-sample
  */
 @Slf4j
 @Service
 public class AzureClient {
+
   private static final String AUTHORISATION_HEADER = "POST\n%s\napplication/json\nx-ms-date:%s\n/api/logs";
   private static final String URL = "https://%s.ods.opinsights.azure.com/api/logs?api-version=2016-04-01";
   private static final String RFC_1123_DATE = "EEE, dd MMM yyyy HH:mm:ss z";
@@ -55,27 +52,30 @@ public class AzureClient {
   /**
    * Will send logs to azure
    *
-   * @param logPath log path
-   * @param logs    stringified logs to send
+   * @param logPath       log path
+   * @param customLogName name of the azure_log
+   * @param logs          stringified logs to send
    * @return sending successful
    */
-  public boolean sendLogs(String logPath, String logs) {
+  public boolean sendLogs(String logPath, String customLogName, String logs) {
     log.info("Start sending logs for '{}'", logPath);
-    var logName = getLogName(logPath);
+    var logName = StringUtils.hasText(customLogName) ? customLogName : getLogName(logPath);
+
+    var cleanLogName = logName.replaceAll("[^a-zA-Z0-9_]", "_");
 
     try (var httpClient = HttpClients.createDefault()) {
-      var httpPost = getPost(logName, logs);
+      var httpPost = getPost(cleanLogName, logs);
       var response = httpClient.execute(httpPost);
       var statusCode = response.getStatusLine().getStatusCode();
 
-      if(statusCode != 200){
-        log.warn("Error sending logs to azure, status code: {}",statusCode);
+      if (statusCode != 200) {
+        log.warn("Error sending logs to azure, status code: {}", statusCode);
         return false;
       }
 
       return true;
     } catch (Exception e) {
-      log.error("Error sending request for '{}' to azure", logName, e);
+      log.error("Error sending request for '{}' to azure", cleanLogName, e);
     }
 
     return false;
@@ -143,7 +143,8 @@ public class AzureClient {
   private String getHMAC256(String input) throws NoSuchAlgorithmException, InvalidKeyException {
     var sha256HMAC = Mac.getInstance("HmacSHA256");
     var secretKey = new SecretKeySpec(
-            Base64.getDecoder().decode(connectionKey.getBytes(StandardCharsets.UTF_8)), "HmacSHA256");
+            Base64.getDecoder().decode(connectionKey.getBytes(StandardCharsets.UTF_8)),
+            "HmacSHA256");
     sha256HMAC.init(secretKey);
 
     return new String(
