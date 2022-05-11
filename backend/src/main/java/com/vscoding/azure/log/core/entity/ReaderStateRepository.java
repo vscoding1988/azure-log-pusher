@@ -11,6 +11,6 @@ public interface ReaderStateRepository extends CrudRepository<ReaderStateEntity,
    * @param configClass is used to distinguish between the different reader
    * @return list of {@link ReaderStateEntity}
    */
-  Iterable<ReaderStateEntity> findAllByLastCheckIsNullAndConfigClass(
+  Iterable<ReaderStateEntity> findAllByLastCheckIsNullAndErrorIsFalseAndConfigClass(
           Class<? extends ReaderConfig> configClass);
 }

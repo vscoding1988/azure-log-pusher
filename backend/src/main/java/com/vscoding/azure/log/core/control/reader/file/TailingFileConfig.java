@@ -9,15 +9,42 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+/**
+ * Configuration for file tailing
+ */
 @Data
 public class TailingFileConfig implements SimpleLogConfig, SimpleDateConfig, ReaderConfig {
+  /**
+   * Path to the log file
+   */
   @NotBlank
   private String path;
+
+  /**
+   * Log pattern
+   */
   @NotBlank
   private String pattern;
-  private String logName;
+
+  /**
+   * Date field name
+   */
+
   private String timestampFieldName;
+
+  /**
+   * Optional log name
+   */
+  private String logName;
+
+  /**
+   * Log date pattern
+   */
   private String timestampPattern;
+
+  /**
+   * Fields, which should be sent to azure, the name should match the pattern named groups
+   */
   @NotEmpty
   private List<String> fields;
 }

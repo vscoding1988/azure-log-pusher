@@ -1,7 +1,5 @@
 package com.vscoding.azure.log.core.control.client;
 
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -13,6 +11,7 @@ import java.util.TimeZone;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
@@ -95,7 +94,7 @@ public class AzureClient {
     var httpPost = new HttpPost(url);
 
     httpPost.setHeader("Authorization", getAuthorisation(date, logs));
-    httpPost.setHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+    httpPost.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
     httpPost.setHeader("Log-Type", logName);
     httpPost.setHeader("x-ms-date", date);
     httpPost.setEntity(new StringEntity(logs));

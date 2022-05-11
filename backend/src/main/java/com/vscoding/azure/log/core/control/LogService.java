@@ -10,17 +10,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * Will parse logs and send them as JSON to azure
+ * Basic service for Controller requests
  */
 @Slf4j
 @Service
 @AllArgsConstructor
-public class AzureService {
+public class LogService {
 
   private final ReaderStateRepository stateRepository;
 
   /**
-   * Register a file log reader
+   * Create {@link ReaderStateEntity} in the database based on user request
    *
    * @param config file config
    */
