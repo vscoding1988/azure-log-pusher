@@ -20,4 +20,3 @@ local logs to the Log Analytics Workspace.
 ### Enchantments
 - add support for multi line logs (like exceptions) 
 - add type recognition
-- make fields obsolet, by parsing the data

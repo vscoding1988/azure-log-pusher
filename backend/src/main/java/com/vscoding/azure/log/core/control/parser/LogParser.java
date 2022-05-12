@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.vscoding.azure.log.core.control.reader.ReaderConfig;
 import com.vscoding.azure.log.core.control.reader.file.TailingFileConfig;
-import java.util.Optional;
+import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class LogParser {
@@ -18,25 +20,19 @@ public class LogParser {
   /**
    * Parse log line
    *
-   * @param line   log line
+   * @param lines  log lines
    * @param config {@link TailingFileConfig} configuration for parsing line
    * @return log in azure json format
    */
-  public Optional<JsonElement> parse(String line, ReaderConfig config) {
-
+  public JsonElement parse(List<String> lines, ReaderConfig config) {
     if (config instanceof SimpleLogConfig logConfig) {
-      var values = parser.parseLine(line, logConfig.getPattern());
+      var values = parser.parseLines(lines, logConfig.getPattern());
 
-      if (values == null) {
-        // TODO: better handling for not parseable lines
-        return Optional.empty();
-      }
       if (config instanceof SimpleDateConfig dateConfig) {
-        processor.process(values, dateConfig);
+        values.forEach(value -> processor.process(value, dateConfig));
       }
-      return Optional.of(new Gson().toJsonTree(values));
+      return new Gson().toJsonTree(values);
     }
-
-    return Optional.empty();
+    return null;
   }
 }

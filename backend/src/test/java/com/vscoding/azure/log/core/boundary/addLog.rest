@@ -3,19 +3,9 @@ POST http://localhost:8080/rest/add-log
 Content-Type: application/json
 
 {
-  "path": "{{log_path}}",
-  "pattern": "(?<HostIp>[0-9.-]+) - - \\[(?<Timestamp>.+)] \"(?<Method>[A-Z]+) (?<Path>.+) HTTP/1.1\" (?<StatusCode>\\d+) (?<Duration>\\d+) \"(?<Domain>.+)\" \"(?<Agent>.+)\" \"(?<ClientIp>[0-9-.]+)\"",
-  "fields": [
-    "HostIp",
-    "Timestamp",
-    "Method",
-    "Path",
-    "StatusCode",
-    "Duration",
-    "Domain",
-    "Agent",
-    "ClientIp"
-  ],
+  "path": "C:/Dev/logs/CM Logs/studio-server/20220411.log",
+  "pattern": "(?<HostIp>[0-9.-]+) - \\[(.[^\\]]+)] - - \\[(?<Timestamp>.[^\\]]+)] \"(?<Method>[A-Z]+) (?<Path>.+) HTTP/1.1\" (?<StatusCode>\\d+) (?<SizeBody>\\d+) \"(?<Domain>.[^\"]*)\" \"(?<Agent>.[^\"]+)\" (?<SizeFull>\\d+) (?<UserDuration>[0-9.-]+) \\[sart-production-studio-server-http] .+",
   "timestampFieldName": "Timestamp",
+  "logName": "production_studio_server_1_log",
   "timestampPattern": "dd/MMM/yyyy:HH:mm:ss ZZZZ"
 }

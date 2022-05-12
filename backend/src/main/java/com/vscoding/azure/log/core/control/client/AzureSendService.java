@@ -60,16 +60,14 @@ public class AzureSendService {
       if (config != null) {
         log.info("Start processing {} logs for '{}'", logs.size(), config.getPath());
 
-        // TODO embed buckets, to speed up log parsing, by not recompiling Pattern
-        var parsedLogs = logs.stream()
-                .map(LogEntity::getLog)
-                .map(line -> logParser.parse(line, config))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+        var logLines = logs.stream().map(LogEntity::getLog).toList();
 
-        var json = new Gson().toJson(parsedLogs);
-        azureClient.sendLogs(config.getPath(), config.getLogName(), json);
+        var parsedLogs = logParser.parse(logLines,config);
+
+        if(parsedLogs != null){
+          var json = new Gson().toJson(parsedLogs);
+          azureClient.sendLogs(config.getPath(), config.getLogName(), json);
+        }
       } else {
         log.error("Could not find config with ID '{}', logs will be dropped.", readerId);
       }

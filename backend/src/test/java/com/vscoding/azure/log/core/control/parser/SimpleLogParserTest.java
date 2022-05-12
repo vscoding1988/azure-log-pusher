@@ -1,10 +1,11 @@
 package com.vscoding.azure.log.core.control.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Map;
+import com.vscoding.azure.log.core.control.parser.exception.LogParserException;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 class SimpleLogParserTest {
@@ -14,38 +15,41 @@ class SimpleLogParserTest {
   @Test
   void parseLine() {
     // Given
-    var line = "PUT \"https://domain/path\" 200";
+    var line = Collections.singletonList("PUT \"https://domain/path\" 200");
     var pattern = "(?<Method>[A-Z]+) \"(?<Path>.[^\"]+)\" (?<StatusCode>\\d+)";
 
     // When
-    var values = sut.parseLine(line, pattern);
+    var values = sut.parseLines(line, pattern);
 
     // Then
-    assertEquals("PUT", values.get("Method"));
-    assertEquals("https://domain/path", values.get("Path"));
-    assertEquals("200", values.get("StatusCode"));
+    assertEquals(1, values.size());
+
+    var value = values.get(0);
+    assertEquals("PUT", value.get("Method"));
+    assertEquals("https://domain/path", value.get("Path"));
+    assertEquals("200", value.get("StatusCode"));
   }
 
   @Test
   void parseLine_withoutGroups() {
     // Given
-    var line = "PUT \"https://domain/path\" 200";
+    var line = Collections.singletonList("PUT \"https://domain/path\" 200");
     var pattern = "([A-Z]+) \"(.[^\"]+)\" (\\d+)";
 
     // When
-    assertThrows(LogParserException.class, () -> sut.parseLine(line, pattern));
+    assertThrows(LogParserException.class, () -> sut.parseLines(line, pattern));
   }
 
   @Test
   void parseLine_unParsable() {
     // Given
-    var line = "PUT \"https://domain/path\" 200";
-    var pattern = "([1-9]+) \"(.[^\"]+)\" (\\d+)";
+    var line = Collections.singletonList("PUT \"https://domain/path\" 200");
+    var pattern = "(?<Method>[1-9]+) \"(?<Path>.[^\"]+)\" (?<StatusCode>\\d+)";
 
     // When
-    var values = sut.parseLine(line, pattern);
+    var values = sut.parseLines(line, pattern);
 
     // Then
-    assertNull(values);
+    assertTrue(values.isEmpty());
   }
 }
