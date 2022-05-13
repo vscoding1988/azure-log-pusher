@@ -1,16 +1,13 @@
 package com.vscoding.azure.log.core.control.reader.file;
 
 import com.google.gson.Gson;
-import com.vscoding.azure.log.core.entity.LogRepository;
 import com.vscoding.azure.log.core.entity.ReaderStateEntity;
 import com.vscoding.azure.log.core.entity.ReaderStateRepository;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.input.Tailer;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,14 +22,15 @@ import org.springframework.stereotype.Service;
 public class TailingFileReader {
 
   private final long tailingDelay;
-  private final LogRepository logRepository;
   private final ReaderStateRepository stateRepository;
+  private final TailingListenerFactory factory;
   private final List<ReaderStateEntity> currentRunning = new ArrayList<>();
 
   public TailingFileReader(@Value("${app.reader.file.delay:1000}") long tailingDelay,
-                           LogRepository logRepository, ReaderStateRepository stateRepository) {
+          TailingListenerFactory factory,
+          ReaderStateRepository stateRepository) {
     this.tailingDelay = tailingDelay;
-    this.logRepository = logRepository;
+    this.factory = factory;
     this.stateRepository = stateRepository;
   }
 
@@ -41,7 +39,8 @@ public class TailingFileReader {
    */
   @Scheduled(cron = "0 * * * * *")
   protected void startNewReader() {
-    stateRepository.findAllByLastCheckIsNullAndErrorIsFalseAndConfigClass(TailingFileConfig.class).forEach(this::run);
+    stateRepository.findAllByLastCheckIsNullAndErrorIsFalseAndConfigClass(TailingFileConfig.class)
+            .forEach(this::run);
 
     // To reduce DB write access, write only once a minute
     stateRepository.saveAll(currentRunning);
@@ -62,8 +61,9 @@ public class TailingFileReader {
       return;
     }
 
-    var listener = new TailingListener(logRepository, state, config.getPath());
+    var listener = factory.createTailingListener(state, config.getPath());
 
+    log.info("Start reading already present lines '{}'.", config.getPath());
     // first read the file as whole
     try (var br = new BufferedReader(new FileReader(config.getPath()))) {
 
@@ -73,6 +73,8 @@ public class TailingFileReader {
     } catch (Exception e) {
       log.error("Error parsing file '{}'", config.getPath(), e);
     }
+
+    log.info("Start tailing '{}'.", config.getPath());
 
     // attach tailing Tailer.create will create a separate thread und tail log inside
     Tailer.create(new File(config.getPath()), listener, tailingDelay, true);

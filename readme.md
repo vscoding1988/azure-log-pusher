@@ -16,6 +16,7 @@ local logs to the Log Analytics Workspace.
 - support folder
 - add basic frontend
 - make application standalone
+- ~~make sure to log every log only once~~
 
 ### Enchantments
 - add support for multi line logs (like exceptions) 
